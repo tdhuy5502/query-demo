@@ -9,6 +9,7 @@ use App\Models\Employee;
 use App\Models\Order;
 use App\Models\Post;
 use App\Models\Product;
+use App\Models\Tag;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -86,5 +87,34 @@ class QueryController extends Controller
         $invoices = Customer::with(['invoices.payments' => function($query){
             $query->where('amount','>=',500);
         }])->find($id);
+
+        //7
+        $days = Carbon::now()->subDays(30);
+        $products = Product::onlyTrashed()->where('deleted_at','>=',$days)->get();
+
+        $user = User::withTrashed()->where('email','Email')->first();
+
+        $posts = Post::onlyTrashed()
+        ->where('deleted_at','>=',Carbon::now()->subYear())
+        ->get();
+        foreach($posts as $post)
+        {
+            $post->forceDelete();
+        }
+
+        //8
+        $student = Student::with('courses')->get();
+
+        $tags = Tag::with('posts')->get();
+
+        $users = User::has('roles','>=',3)->with('roles')->get();
+
+        // Doi voi dang query dung join & sub query
+        // Dung query builder 
+        // DB::table('')->join()->where()->select('','' as '')
+
+
+        // Mutators & Accessor
+
     }
 }
